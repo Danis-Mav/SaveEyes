@@ -24,50 +24,69 @@
         <TextBox x:Name="tbSearch"
                  TextChanged="tbSearch_TextChanged"/>
 
+        <ComboBox x:Name="cbSort" Grid.Column="1"
+                  SelectedIndex="0"
+                  SelectionChanged="FiltersChanged"
+                  ItemsSource="{Binding Sortings.Keys}"/>
         <ComboBox x:Name="cbFilter" Grid.Column="2"
                   ItemsSource="{Binding AgentTypes}"
                   SelectionChanged="FiltersChanged"
                   SelectedIndex="0"
                   DisplayMemberPath="Title"/>
 
-        <ListView x:Name="lvAgents"
-                  ItemsSource="{Binding AgentsForFilters}"
-                  Grid.Row="1"
-                  Grid.ColumnSpan="3"
+        <ListView x:Name="lvAgents" ItemsSource="{Binding AgentsForFilters}"
+                  Grid.Row="1" Grid.ColumnSpan="3"
                   HorizontalContentAlignment="Stretch"
+                  MouseDoubleClick="lvAgents_MouseDoubleClick"
                   SelectionChanged="lvAgents_SelectionChanged">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Stretch"
-                                    Background="{Binding Background}">
-                            <Image Width="50">
-                                <Image.Source>
-                                    <Binding Path="LogoImage">
-                                        <Binding.TargetNullValue>
-                                            <ImageSource>/Resources/picture.png</ImageSource>
-                                        </Binding.TargetNullValue>
-                                    </Binding>
-                                </Image.Source>
-                            </Image>
-                            <TextBlock FontSize="20">
-                                        <Run Text="{Binding AgentType.Title}" />
-                                        <Run Text="|" />
-                                        <Run Text="{Binding Title}" />
-                            </TextBlock>
-                            <TextBlock Text="{Binding SellsCount, StringFormat='{}0 продаж за год' }" />
-                            <TextBlock Text="{Binding Phone}" />
-                        </StackPanel>
-                        <TextBlock Text="{Binding Discount, StringFormat='{}{0}%'}"
-                                   FontSize="18"
-                                   HorizontalAlignment="Right" />
-                    </Grid>
+                    <Border BorderBrush="Black" BorderThickness="1">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Background="{Binding Background}">
+                                <Image Width="100" >
+                                    <Image.Source>
+                                        <Binding Path="LogoImage">
+                                            <Binding.TargetNullValue>
+                                                <ImageSource>/Resources/picture.png</ImageSource>
+                                            </Binding.TargetNullValue>
+                                        </Binding>
+                                    </Image.Source>
+                                </Image>
+                                <StackPanel Margin="10 0">
+                                    <TextBlock FontSize="20" >
+                                        <Run Text="{Binding AgentType.Title}"/>
+                                        <Run Text="|"/>
+                                        <Run Text="{Binding Title}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding SellsCount, StringFormat='{}0 продаж за год' }"/>
+                                    <TextBlock Text="{Binding Phone}"/>
+                                    <TextBlock >
+                                        <Run Text="Приоритетность"/>
+                                        <Run Text="{Binding Priority}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Discount, StringFormat='{}{0}%'}" 
+                                       FontSize="18"
+                                       Margin="10"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-
-
+        <Button x:Name="btnChangePriority" Grid.Row="2" Content="Изменить приоритет"
+                Visibility="Hidden"
+                HorizontalAlignment="Left"
+                    Click="btnChangePriority_Click"/>
+        
+        <Button x:Name="btnAddAgent" Grid.Row="2" Grid.Column="1" Content="Добавить агента"
+                    HorizontalAlignment="Left"
+                    Click="btnAddAgent_Click"/>
+        
+        
         <StackPanel Orientation="Horizontal"
                     Grid.ColumnSpan="3"
                     Grid.Row="3" HorizontalAlignment="Right">

@@ -36,6 +36,16 @@ namespace SaveEyes.Pages
             InitializeComponent();
             Agents = DataAccess.GetAgents();
             AgentsForFilters = Agents.ToList();
+
+            Sortings = new Dictionary<string, Func<Agent, object>>
+            {
+                { "Наименование по возрастанию", x => x.Title },
+                { "Наименование по убыванию", x => x.Title },
+                { "Размер скидки по возрастанию", x => x.Discount },
+                { "Размер скидки по убыванию", x => x.Discount },
+                { "Приоритет по возрастанию", x => x.Priority },
+                { "Приоритет по убыванию", x => x.Priority },
+            };
             DataAccess.RefreshList += DataAccess_RefreshList;
             AgentTypes = DataAccess.GetAgentTypes();
             AgentTypes.Insert(0, new AgentType { Title = "Все типы" });
@@ -80,18 +90,21 @@ namespace SaveEyes.Pages
         private void ApplyFilters(bool filtersChanged)
         {
             var filter = cbFilter.SelectedItem as AgentType;
+            var sorting = Sortings[cbSort.SelectedItem as string];
             var text = tbSearch.Text.ToLower();
             if (filtersChanged)
                 PageNumber = 1;
 
-            if (filter != null)
+            if (filter != null && sorting != null)
             {
                 if (filter.Title != "Все типы")
                     AgentsForFilters = Agents.Where(x => x.AgentType == filter).ToList();
                 else
                     AgentsForFilters = Agents;
 
-                AgentsForFilters = AgentsForFilters.ToList();
+                AgentsForFilters = AgentsForFilters.OrderBy(sorting).ToList();
+                if ((cbSort.SelectedItem as string).Contains("убыванию"))
+                    AgentsForFilters = AgentsForFilters.Reverse();
 
                 AgentsForFilters = AgentsForFilters.Where(x => x.Title.ToLower().Contains(text) 
                                                     || x.Email.ToLower().Contains(text)
@@ -112,7 +125,7 @@ namespace SaveEyes.Pages
 
         private void lvAgents_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-           
+            btnChangePriority.Visibility = lvAgents.SelectedItems.Count != 0 ? Visibility.Visible : Visibility.Hidden;
         }
 
         private void tbSearch_TextChanged(object sender, TextChangedEventArgs e)
@@ -143,5 +156,21 @@ namespace SaveEyes.Pages
             }
         }
 
+        private void btnAddAgent_Click(object sender, RoutedEventArgs e)
+        {
+            new Windows.AgentWindow(new Agent()).ShowDialog();
+        }
+
+        private void btnChangePriority_Click(object sender, RoutedEventArgs e)
+        {
+            var agents = lvAgents.SelectedItems.Cast<Agent>().ToList();
+            new Windows.ChangePriorityWindow(agents).ShowDialog();
+        }
+
+        private void lvAgents_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (lvAgents.SelectedItem is Agent agent)
+                new Windows.AgentWindow(agent).ShowDialog();
+        }
     }
 }
